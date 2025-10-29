@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CougerBlog – Login</title>
+    <link rel="stylesheet" href="LoginPage.css" />
+  </head>
+  <body>
+    <!-- Page Wrapper -->
+    <main>
+      <!-- Left Panel -->
+      <section aria-label="Login panel" class="loginSection">
+        <header class="loginHeader">
+          <!-- Simple cougar logo (SVG) -->
+          <div class="cougarIcon">
+            <img
+              src="Icons/spirit-logo01-removebg-preview 1 (3).png"
+              alt="Cougar Logo"
+              width="70"
+              height="70"
+            />
+          </div>
+          <div class="welcomeHeader">
+          <h1>Welcome To CougerBlog !</h1>
+          <p>Your voice matters. Share your story with the world.</p>
+          </div>
+        </header>
+
+        <form action="#" method="post" autocomplete="on" novalidate>
+          <div>
+            <label for="email" class="emailLabel">Email*</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          <div>
+            <label for="password" class="passwordLabel">Password*</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+            <div class="row">
+              <label><input type="checkbox" /> Remember me</label>
+              <a href="#" class="colorLightBlue">Forget your password ?</a>
+            </div>
+          </div>
+
+          <div>
+            <button type="submit">Login</button>
+          </div>
+
+          <div class="OrRow">
+            <div class="line"></div>
+            <span>Or</span>
+            <div class="line"></div>
+          </div>
+          
+          <div class="ThirdRow">
+            <span>Don’t have an account?</span>
+            <a href="#" class="colorLightBlue">Register</a>
+          </div>
+      </section>
+
+      <!-- Right Panel Image -->
+      <section aria-label="Cover image" class="campusImg">
+        <!-- Replace the src with your campus image -->
+        <img
+          src="Icons/campus-dusk-nature-plum (1).jpg"
+          alt="Campus with trees and a building at sunset"
+        />
+      </section>
+    </main>
+  </body>
+</html>

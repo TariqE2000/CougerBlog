@@ -1,0 +1,182 @@
+/* =========================
+   Global
+   ========================= */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #002E5A;
+  color: white;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Make links white (avoid default purple/blue) */
+a {
+  color: #ffffff;
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* =========================
+   Page layout split
+   ========================= */
+main {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Left login panel */
+main > section:first-child {
+  flex: 1;
+}
+
+/* Right image panel */
+.campusImg {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+}
+
+.campusImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block; /* remove inline-gap */
+}
+
+/* =========================
+   Login panel layout
+   ========================= */
+.loginSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;  /* stacks icon, header, form */
+  justify-content: center;
+  align-items: center;     /* center the column; inner blocks control their own alignment */
+  padding: 20px;
+  gap: 20px;               /* space between groups */
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Cougar icon aligned LEFT within the same column width */
+.cougarIcon {
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  justify-content: flex-start;  /* left align the image */
+  margin-bottom: 8px;
+}
+.cougarIcon img { display: block; }
+
+/* =========================
+   Header (LEFT aligned, one line title)
+   ========================= */
+.loginHeader {
+  width: 100%;
+  max-width: 450px;
+  text-align: left;          /* not centered */
+}
+
+/* Keep the title on one line so "!" doesn't wrap */
+.loginHeader h1 {
+  margin: 0 0 8px;
+  font-size: 26px;
+  line-height: 1.2;
+  white-space: nowrap;       /* << prevents breaking onto a new line */
+}
+
+.loginHeader p {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 300; /* lighter text */
+  font-style: italic; /* italic text */
+
+}
+
+/* =========================
+   Form
+   ========================= */
+.loginSection form {
+  width: 100%;
+  max-width: 450px;
+}
+
+.loginSection form div,
+.loginSection form p {
+  margin-bottom: 16px;
+}
+
+.loginSection input[type="email"],
+.loginSection input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.loginSection button {
+  width: 100%;
+  padding: 10px;
+  cursor: pointer;
+  box-sizing: border-box;
+  background-color: #3ab5e8;
+  border: none;
+  color: white;
+  border-radius: 2px; /* Curved corners */
+}
+
+/* Checkbox + Forgot Password inline */
+.loginSection .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.SecondRow {
+  width: 100%;
+  max-width: 450px; /* match form width */
+  display: flex;
+  justify-content: center; /* center the text horizontally */
+  margin: 12px 0; /* some spacing above + below */
+}
+
+.SecondRow span {
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.ThirdRow {
+  width: 100%;
+  max-width: 450px;     /* match your form width */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* pushes link to the far right */
+}
+
+.colorLightBlue{
+    color: #3ab5e8;
+}
+
+.OrRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  justify-content: center; /* Center entire group */
+  margin: 10px 0 6px;
+}
+
+.OrRow span {
+  padding: 0 12px;  /* Adds equal spacing on left & right */
+  padding-bottom: 12px;
+}
+.OrRow .line {
+  flex: 1;
+  height: 2px;
+  background: rgba(255,255,255,255);
+}

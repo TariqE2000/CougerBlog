@@ -152,3 +152,96 @@ body {
   color: gray;
   margin-bottom: 8px;
 }
+
+/* ========== POST MODAL ========== */
+.modal { position: fixed; inset: 0; display: none; z-index: 1000; }
+.modal.open { display: block; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
+
+.modal-dialog {
+  position: relative;
+  margin: 6vh auto 0;
+  max-width: 720px;
+  width: min(92vw, 720px);
+  background: #ffffff;
+  color: #0b1730;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+
+.modal-close {
+  position: absolute; top: 10px; right: 12px;
+  border: 0; background: transparent;
+  font-size: 24px; line-height: 1; cursor: pointer; color: #4b5563;
+}
+
+.modal-header { padding: 16px 20px; background: #f3f4f6; }
+.modal-body  { padding: 18px 20px; display: grid; gap: 10px; }
+.modal-label { font-size: 13px; color: #374151; }
+
+#newPostTitle, #newPostAuthor, #newPostBody {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  font: inherit;
+}
+#newPostTitle:focus, #newPostAuthor:focus, #newPostBody:focus {
+  border-color: #3ab5e8;
+  box-shadow: 0 0 0 3px rgba(58,181,232,.25);
+}
+
+.modal-actions {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 14px 20px; background: #f9fafb;
+}
+.btn { border: 0; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 700; }
+.btn-primary { background: #3ab5e8; color: #002E5A; }
+.btn-ghost   { background: #e5e7eb; color: #111827; }
+
+/* Make the new sidebar cards match your current style */
+.sidePost.newly-added {
+  outline: 2px solid rgba(58,181,232,.35);
+}
+@media (max-width: 640px) {
+  .modal-dialog { margin-top: 4vh; }
+}
+
+/* ========== RTE (Rich Text Editor) ========== */
+.rte-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0 8px;
+}
+.rte-sep {
+  width: 1px; height: 20px; background: #e5e7eb; display: inline-block;
+}
+.rte-btn {
+  border: 0; border-radius: 8px; padding: 6px 10px; cursor: pointer;
+  font-weight: 700; background: #e5e7eb; color: #111827;
+}
+.rte-btn:hover { filter: brightness(0.95); }
+
+.rte-editor {
+  min-height: 180px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  font: inherit;
+  background: #fff;
+  color: #0b1730;
+  overflow-y: auto;
+}
+.rte-editor:focus {
+  border-color: #3ab5e8;
+  box-shadow: 0 0 0 3px rgba(58,181,232,.25);
+}
+.rte-editor:empty:before {
+  content: attr(placeholder);
+  color: #6b7280;
+}
+

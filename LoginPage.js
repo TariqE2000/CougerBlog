@@ -22,13 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
       (u) => enteredUser === u.username && enteredPass === u.password
     );
 
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      window.location.href = "ProfilePage.html";
-    });
-
     if (isValid) {
       // Success → go to profile
-      window.location.href = "ProfilePage.html";
+      window.location.href = "Home_Page/Home_Page.html";
     } else {
       // Failure → show popup
       alert(

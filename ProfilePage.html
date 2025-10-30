@@ -10,23 +10,21 @@
     <!-- =========================
          Top Navigation (unchanged)
          ========================= -->
-    <header>
-      <nav aria-label="Primary">
-        <div class="nav-left">
-          <a class="brand" href="/"></a>
+    <header class="navbar">
+      <div class="nav-left">
+        <img
+          src="Home_Page/Icons/spirit-logo01-removebg-preview 1 (3).png"
+          alt="Cougar Logo"
+          class="nav-logo"
+        />
+        <a href="Home_Page/Home_Page.html" class="nav-link1">Home</a>
+        <a href="LoginPage.html" class="nav-link2">Logout</a>
+        <a href="ProfilePage.html" class="nav-link3">Profile</a>
+      </div>
 
-          <ul class="nav-links">
-            <li><a href="/" class="active">Home</a></li>
-            <li><a href="LoginPage.html">Logout</a></li>
-          </ul>
-        </div>
-
-        <div class="nav-right">
-          <button class="profile-btn" aria-label="Profile / Account">
-            <img src="Icons/campus-dusk-nature-plum (1).jpg" alt="" width="86" height="86" />
-          </button>
-        </div>
-      </nav>
+      <div class="nav-center">
+        <input type="text" placeholder="Search Post..." class="search-input" />
+      </div>
     </header>
 
     <!-- =========================
@@ -36,9 +34,13 @@
       <div class="profile-page">
         <!-- Profile hero -->
         <section class="profile-hero" aria-labelledby="profile-name">
-
           <figure class="profile-avatar">
-            <img src="Icons/spirit-logo01-removebg-preview 1 (3).png" alt="User avatar" width="120" height="120" />
+            <img
+              src="Icons/spirit-logo01-removebg-preview 1 (3).png"
+              alt="User avatar"
+              width="120"
+              height="120"
+            />
           </figure>
 
           <!-- ✅ Editable Username Wrapper -->
@@ -46,13 +48,19 @@
             <h1 id="display-username">Lourm Ipsume</h1>
 
             <!-- Hidden until editing -->
-            <div id="edit-controls" style="display:none;">
+            <div id="edit-controls" style="display: none">
               <input type="text" id="username-input" />
               <button id="save-username">Save</button>
               <button id="cancel-edit">Cancel</button>
             </div>
 
-            <a class="edit-username" id="edit-username" href="#" aria-label="Edit username">Edit Username</a>
+            <a
+              class="edit-username"
+              id="edit-username"
+              href="#"
+              aria-label="Edit username"
+              >Edit Username</a
+            >
           </div>
 
           <div class="profile-stats" aria-label="Profile statistics">
@@ -75,10 +83,18 @@
               <h3 class="post-card-title">My First Week Back on Campus</h3>
             </header>
             <div class="post-card-body">
-              <p>From parking chaos to discovering a new quiet spot, here’s everything I learned in week one. Pro tip: the east stairwell is faster than the elevators at 9am.</p>
+              <p>
+                From parking chaos to discovering a new quiet spot, here’s
+                everything I learned in week one. Pro tip: the east stairwell is
+                faster than the elevators at 9am.
+              </p>
             </div>
             <footer class="post-card-meta">
-              <span class="date"><time datetime="2025-10-09">Posted on October 9, 2025</time></span>
+              <span class="date"
+                ><time datetime="2025-10-09"
+                  >Posted on October 9, 2025</time
+                ></span
+              >
               <span class="views">views 67</span>
             </footer>
           </article>
@@ -86,13 +102,23 @@
           <!-- Card 2 -->
           <article class="post-card">
             <header class="post-card-header">
-              <h3 class="post-card-title">What I Wish I Knew Before Midterms</h3>
+              <h3 class="post-card-title">
+                What I Wish I Knew Before Midterms
+              </h3>
             </header>
             <div class="post-card-body">
-              <p>Office hours are underrated. Start the practice exams two days earlier than you think. And yes—sleep matters more than one more page of notes.</p>
+              <p>
+                Office hours are underrated. Start the practice exams two days
+                earlier than you think. And yes—sleep matters more than one more
+                page of notes.
+              </p>
             </div>
             <footer class="post-card-meta">
-              <span class="date"><time datetime="2025-10-09">Posted on October 9, 2025</time></span>
+              <span class="date"
+                ><time datetime="2025-10-09"
+                  >Posted on October 9, 2025</time
+                ></span
+              >
               <span class="views">views 67</span>
             </footer>
           </article>
@@ -100,13 +126,23 @@
           <!-- Card 3 -->
           <article class="post-card">
             <header class="post-card-header">
-              <h3 class="post-card-title">Budgeting as a Student (That Actually Works)</h3>
+              <h3 class="post-card-title">
+                Budgeting as a Student (That Actually Works)
+              </h3>
             </header>
             <div class="post-card-body">
-              <p>I split expenses into: musts, fun, and future me. Auto-transfer 10% to savings the day you get paid. Future you will send thanks.</p>
+              <p>
+                I split expenses into: musts, fun, and future me. Auto-transfer
+                10% to savings the day you get paid. Future you will send
+                thanks.
+              </p>
             </div>
             <footer class="post-card-meta">
-              <span class="date"><time datetime="2025-10-08">Posted on October 8, 2025</time></span>
+              <span class="date"
+                ><time datetime="2025-10-08"
+                  >Posted on October 8, 2025</time
+                ></span
+              >
               <span class="views">views 54</span>
             </footer>
           </article>
@@ -117,10 +153,17 @@
               <h3 class="post-card-title">Dorm Organization Hacks</h3>
             </header>
             <div class="post-card-body">
-              <p>Under-bed storage, command hooks, and a label maker changed my life. Keep the desk clean; your brain will follow.</p>
+              <p>
+                Under-bed storage, command hooks, and a label maker changed my
+                life. Keep the desk clean; your brain will follow.
+              </p>
             </div>
             <footer class="post-card-meta">
-              <span class="date"><time datetime="2025-10-08">Posted on October 8, 2025</time></span>
+              <span class="date"
+                ><time datetime="2025-10-08"
+                  >Posted on October 8, 2025</time
+                ></span
+              >
               <span class="views">views 41</span>
             </footer>
           </article>
@@ -131,10 +174,17 @@
               <h3 class="post-card-title">Three Underrated Study Spots</h3>
             </header>
             <div class="post-card-body">
-              <p>The greenhouse benches, the engineering atrium after 6, and the quiet nook behind the arts building. Bring a sweater.</p>
+              <p>
+                The greenhouse benches, the engineering atrium after 6, and the
+                quiet nook behind the arts building. Bring a sweater.
+              </p>
             </div>
             <footer class="post-card-meta">
-              <span class="date"><time datetime="2025-10-07">Posted on October 7, 2025</time></span>
+              <span class="date"
+                ><time datetime="2025-10-07"
+                  >Posted on October 7, 2025</time
+                ></span
+              >
               <span class="views">views 33</span>
             </footer>
           </article>
@@ -145,10 +195,17 @@
               <h3 class="post-card-title">Why Joining Clubs Helped My GPA</h3>
             </header>
             <div class="post-card-body">
-              <p>Accountability, community, and surprise mentors. The time you “lose” to meetings is focus you gain the rest of the week.</p>
+              <p>
+                Accountability, community, and surprise mentors. The time you
+                “lose” to meetings is focus you gain the rest of the week.
+              </p>
             </div>
             <footer class="post-card-meta">
-              <span class="date"><time datetime="2025-10-07">Posted on October 7, 2025</time></span>
+              <span class="date"
+                ><time datetime="2025-10-07"
+                  >Posted on October 7, 2025</time
+                ></span
+              >
               <span class="views">views 29</span>
             </footer>
           </article>
@@ -167,8 +224,15 @@
     <div id="post-modal" class="modal" aria-hidden="true">
       <div class="modal-backdrop" data-close-modal></div>
 
-      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <button class="modal-close" aria-label="Close" data-close-modal>×</button>
+      <div
+        class="modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <button class="modal-close" aria-label="Close" data-close-modal>
+          ×
+        </button>
 
         <header class="modal-header">
           <h2 id="modal-title">Edit Post</h2>
@@ -182,11 +246,29 @@
 
           <!-- ✅ formatting toolbar -->
           <div class="format-toolbar">
-            <button type="button" class="format-btn active" data-type="paragraph" aria-pressed="true">Paragraph</button>
-            <button type="button" class="format-btn" data-type="title" aria-pressed="false">Title</button>
+            <button
+              type="button"
+              class="format-btn active"
+              data-type="paragraph"
+              aria-pressed="true"
+            >
+              Paragraph
+            </button>
+            <button
+              type="button"
+              class="format-btn"
+              data-type="title"
+              aria-pressed="false"
+            >
+              Title
+            </button>
           </div>
 
-          <textarea id="edit-body" rows="8" placeholder="Write your post..."></textarea>
+          <textarea
+            id="edit-body"
+            rows="8"
+            placeholder="Write your post..."
+          ></textarea>
         </div>
 
         <footer class="modal-actions">
@@ -203,7 +285,8 @@
     <style>
       .visually-hidden {
         position: absolute !important;
-        height: 1px; width: 1px;
+        height: 1px;
+        width: 1px;
         overflow: hidden;
         clip: rect(1px, 1px, 1px, 1px);
         white-space: nowrap;
@@ -211,5 +294,3 @@
     </style>
   </body>
 </html>
-
-

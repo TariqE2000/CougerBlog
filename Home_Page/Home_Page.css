@@ -27,16 +27,35 @@ body {
   height: 40px;
 }
 
-.nav-link {
+.nav-link1 {
+  color: #3ab5e8;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-link2 {
   color: #ffffff;
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
 }
 
-.nav-link:hover {
+.nav-link3 {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-link2:hover {
   text-decoration: underline;
 }
+
+.nav-link3:hover {
+  text-decoration: underline;
+}
+
 
 .postBtn {
   background-color: #3ab5e8;

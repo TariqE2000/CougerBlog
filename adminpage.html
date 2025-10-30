@@ -1,0 +1,68 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CougarBlog – Admin</title>
+  <link rel="stylesheet" href="AdminPage.css" />
+</head>
+<body>
+  <header>
+    <h1>CougarBlog Admin Dashboard</h1>
+    <nav>
+      <a href="HomePage.html">Home</a>
+      <a href="ProfilePage.html">Profile</a>
+      <a href="LoginPage.html">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <aside>
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="users">Users</button>
+      <button class="tab" data-tab="posts">Posts</button>
+      <button class="tab" data-tab="announcements">Announcements</button>
+    </aside>
+
+    <section id="dashboard" class="content active">
+      <h2>Dashboard Overview</h2>
+      <p>Total Users: <span id="userCount">0</span></p>
+      <p>Total Posts: <span id="postCount">0</span></p>
+      <p>Total Announcements: <span id="annCount">0</span></p>
+    </section>
+
+    <section id="users" class="content">
+      <h2>Manage Users</h2>
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Status</th></tr>
+        </thead>
+        <tbody id="userTable"></tbody>
+      </table>
+    </section>
+
+    <section id="posts" class="content">
+      <h2>Manage Posts</h2>
+      <table>
+        <thead>
+          <tr><th>Title</th><th>Author</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody id="postTable"></tbody>
+      </table>
+    </section>
+
+    <section id="announcements" class="content">
+      <h2>Announcements</h2>
+      <input id="annTitle" type="text" placeholder="Announcement title" />
+      <textarea id="annBody" placeholder="Write your announcement..."></textarea>
+      <button id="addAnnouncement">Add</button>
+      <ul id="annList"></ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 CougarBlog</p>
+  </footer>
+
+  <script src="AdminPage.js"></script>
+</body>
+</html>

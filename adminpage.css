@@ -1,0 +1,93 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: navy;
+  color: white;
+}
+
+header {
+  background-color: midnightblue;
+  padding: 10px;
+  text-align: center;
+}
+
+header nav a {
+  color: deepskyblue;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+main {
+  display: flex;
+  min-height: 80vh;
+}
+
+aside {
+  background-color: steelblue;
+  padding: 20px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tab {
+  background-color: lightskyblue;
+  border: none;
+  padding: 10px;
+  color: navy;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.tab.active {
+  background-color: white;
+  color: navy;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  display: none;
+  background-color: royalblue;
+}
+
+.content.active {
+  display: block;
+}
+
+table {
+  width: 100%;
+  background-color: white;
+  color: black;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid lightgray;
+}
+
+textarea, input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  background-color: deepskyblue;
+  color: navy;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+footer {
+  background-color: midnightblue;
+  text-align: center;
+  padding: 10px;
+}

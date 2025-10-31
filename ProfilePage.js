@@ -117,3 +117,59 @@ cancelButton.addEventListener("click", () => {
     if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
   });
 })();
+
+
+
+
+// ---- Live search filter for posts (navbar input) ----
+(function () {
+  const searchInput = document.querySelector('.search-input');
+  if (!searchInput) return;
+
+  // Collect all cards + their searchable text once
+  const cards = [...document.querySelectorAll('.post-card')].map(card => {
+    const title = (card.querySelector('.post-card-title')?.textContent || '').toLowerCase();
+    const body  = (card.querySelector('.post-card-body p')?.textContent || '').toLowerCase();
+    return { card, text: (title + ' ' + body).trim() };
+  });
+
+  // Optional "no results" message
+  let emptyMsg = document.getElementById('no-results');
+  if (!emptyMsg) {
+    emptyMsg = document.createElement('div');
+    emptyMsg.id = 'no-results';
+    emptyMsg.textContent = 'No posts match your search.';
+    emptyMsg.style.display = 'none';
+    emptyMsg.style.color = '#cbd5e1';
+    emptyMsg.style.textAlign = 'center';
+    emptyMsg.style.margin = '24px 0';
+    document.querySelector('.posts-grid')?.appendChild(emptyMsg);
+  }
+
+  // filter cards as we search through the input search
+  // Small debounce so we don’t filter on every keystroke too aggressively
+  let t = null;
+  const debounce = (fn, ms = 80) => (...args) => {
+    clearTimeout(t); t = setTimeout(() => fn(...args), ms);
+  };
+
+  const applyFilter = () => {
+    const q = searchInput.value.trim().toLowerCase();
+    let shown = 0;
+
+    cards.forEach(({ card, text }) => {
+      const match = !q || text.includes(q);
+      // Toggle with the "hidden" attribute keeps layout clean + accessible
+      card.hidden = !match;
+      if (match) shown++;
+    });
+
+    emptyMsg.style.display = shown === 0 ? 'block' : 'none';
+  };
+
+  searchInput.addEventListener('input', debounce(applyFilter));
+})();
+
+
+
+

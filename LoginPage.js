@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (foundUser.role === "admin") {
         window.location.href = "adminpage.html";
       } else {
-        window.location.href = "Home_Page/Home_Page.html";
+        window.location.href = "Home_Page.html";
       }
     } else {
       alert(

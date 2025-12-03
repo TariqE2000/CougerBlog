@@ -1,0 +1,390 @@
+<?php
+// api.php - Main API router
+// 🔥 MUST START SESSION FIRST!
+session_start();
+
+require_once 'db_config.php';
+
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Enable error reporting for debugging (TURN OFF display_errors IN PROD)
+error_reporting(E_ALL);
+ini_set('display_errors', 1); // show errors while developing
+ini_set('log_errors', 1);
+
+$method = $_SERVER['REQUEST_METHOD'];
+$action = $_GET['action'] ?? '';
+
+// Debug log
+error_log("API Request: action=$action, method=$method");
+
+// ====================
+// AUTHENTICATION ENDPOINTS
+// ====================
+
+if ($action === 'register' && $method === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $username  = sanitizeInput($data['username'] ?? '');
+    $email     = sanitizeInput($data['email'] ?? '');
+    $password  = $data['password'] ?? '';
+    $firstName = sanitizeInput($data['first_name'] ?? '');
+    $lastName  = sanitizeInput($data['last_name'] ?? '');
+    
+    if (empty($username) || empty($email) || empty($password)) {
+        jsonResponse(false, 'Missing required fields');
+    }
+    
+    $result = registerUser($username, $email, $password, $firstName, $lastName);
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'login' && $method === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $username = sanitizeInput($data['username'] ?? '');
+    $password = $data['password'] ?? '';
+    
+    error_log("Login attempt for user: $username");
+    
+    if (empty($username) || empty($password)) {
+        jsonResponse(false, 'Missing username or password');
+    }
+    
+    $result = loginUser($username, $password);
+    error_log("Login result: " . json_encode($result));
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'logout' && $method === 'POST') {
+    $result = logoutUser();
+    jsonResponse($result['success'], $result['message']);
+}
+
+if ($action === 'check-session' && $method === 'GET') {
+    if (isLoggedIn()) {
+        jsonResponse(true, 'Logged in', [
+            'user_id'  => $_SESSION['user_id'],
+            'username' => $_SESSION['username'],
+            'email'    => $_SESSION['email'],
+            'role'     => $_SESSION['role']
+        ]);
+    } else {
+        jsonResponse(false, 'Not logged in');
+    }
+}
+
+// ====================
+// POST ENDPOINTS
+// ====================
+
+if ($action === 'create-post' && $method === 'POST') {
+    if (!isLoggedIn()) {
+        jsonResponse(false, 'Unauthorized');
+    }
+    
+    $data   = json_decode(file_get_contents('php://input'), true);
+    $title  = sanitizeInput($data['title'] ?? '');
+    $body   = $data['body'] ?? ''; // Don't sanitize body as it may contain HTML
+    $status = isAdmin() ? 'Approved' : 'Pending'; // logical status only
+    
+    if (empty($title) || empty($body)) {
+        jsonResponse(false, 'Missing title or body');
+    }
+    
+    $result = createPost($title, $body, getCurrentUserId(), $status);
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'get-posts' && $method === 'GET') {
+    $limit  = intval($_GET['limit'] ?? 100);
+    $offset = intval($_GET['offset'] ?? 0);
+    $status = $_GET['status'] ?? 'Approved';
+    
+    $result = getAllPosts($limit, $offset, $status);
+    jsonResponse($result['success'], 'Posts retrieved', $result);
+}
+
+// ✅ HOME FEED POSTS (for Home_Page.js)
+if ($action === 'get-home-posts' && $method === 'GET') {
+    // Defaults for the home feed
+    $limit  = intval($_GET['limit'] ?? 50);
+    $offset = intval($_GET['offset'] ?? 0);
+    $status = 'Approved'; // home page should only show approved posts
+
+    $result = getAllPosts($limit, $offset, $status);
+
+    jsonResponse(
+        $result['success'],
+        $result['message'] ?? 'Posts retrieved',
+        $result
+    );
+}
+
+if ($action === 'get-post' && $method === 'GET') {
+    $postId = intval($_GET['id'] ?? 0);
+    
+    if ($postId === 0) {
+        jsonResponse(false, 'Invalid post ID');
+    }
+    
+    $result = getPostById($postId);
+    jsonResponse($result['success'], $result['message'] ?? 'Post retrieved', $result);
+}
+
+if ($action === 'get-user-posts' && $method === 'GET') {
+    $userId = intval($_GET['user_id'] ?? 0);
+    
+    if ($userId === 0) {
+        jsonResponse(false, 'Invalid user ID');
+    }
+    
+    $result = getPostsByAuthor($userId);
+    jsonResponse($result['success'], 'Posts retrieved', $result);
+}
+
+if ($action === 'update-post' && $method === 'POST') {
+    if (!isLoggedIn()) {
+        jsonResponse(false, 'Unauthorized');
+    }
+    
+    $data   = json_decode(file_get_contents('php://input'), true);
+    $postId = intval($data['post_id'] ?? 0);
+    $title  = sanitizeInput($data['title'] ?? '');
+    $body   = $data['body'] ?? '';
+    
+    if ($postId === 0 || empty($title) || empty($body)) {
+        jsonResponse(false, 'Missing required fields');
+    }
+    
+    $result = updatePost($postId, $title, $body, getCurrentUserId());
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'delete-post' && $method === 'POST') {
+    if (!isLoggedIn()) {
+        jsonResponse(false, 'Unauthorized');
+    }
+    
+    $data   = json_decode(file_get_contents('php://input'), true);
+    $postId = intval($data['post_id'] ?? 0);
+    
+    if ($postId === 0) {
+        jsonResponse(false, 'Invalid post ID');
+    }
+    
+    $result = deletePost($postId, getCurrentUserId());
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'search-posts' && $method === 'GET') {
+    $query = sanitizeInput($_GET['q'] ?? '');
+    
+    if (empty($query)) {
+        jsonResponse(false, 'Missing search query');
+    }
+    
+    $result = searchPosts($query);
+    jsonResponse($result['success'], 'Search results', $result);
+}
+
+// ====================
+// COMMENT ENDPOINTS
+// ====================
+
+if ($action === 'add-comment' && $method === 'POST') {
+    if (!isLoggedIn()) {
+        jsonResponse(false, 'Unauthorized');
+    }
+    
+    $data    = json_decode(file_get_contents('php://input'), true);
+    $postId  = intval($data['post_id'] ?? 0);
+    $content = sanitizeInput($data['content'] ?? '');
+    
+    if ($postId === 0 || empty($content)) {
+        jsonResponse(false, 'Missing required fields');
+    }
+    
+    $result = addComment($postId, getCurrentUserId(), $content);
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'get-comments' && $method === 'GET') {
+    $postId = intval($_GET['post_id'] ?? 0);
+    
+    if ($postId === 0) {
+        jsonResponse(false, 'Invalid post ID');
+    }
+    
+    $result = getCommentsByPost($postId);
+    jsonResponse($result['success'], 'Comments retrieved', $result);
+}
+
+if ($action === 'delete-comment' && $method === 'POST') {
+    if (!isLoggedIn()) {
+        jsonResponse(false, 'Unauthorized');
+    }
+    
+    $data      = json_decode(file_get_contents('php://input'), true);
+    $commentId = intval($data['comment_id'] ?? 0);
+    
+    if ($commentId === 0) {
+        jsonResponse(false, 'Invalid comment ID');
+    }
+    
+    $result = deleteComment($commentId, getCurrentUserId());
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+// ====================
+// ANNOUNCEMENT ENDPOINTS
+// ====================
+
+if ($action === 'create-announcement' && $method === 'POST') {
+    $data  = json_decode(file_get_contents('php://input'), true);
+    $title = sanitizeInput($data['title'] ?? '');
+    $body  = sanitizeInput($data['body'] ?? '');
+    
+    if (empty($title) || empty($body)) {
+        jsonResponse(false, 'Missing title or body');
+    }
+    
+    $result = createAnnouncement($title, $body);
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'get-announcements' && $method === 'GET') {
+    $result = getAllAnnouncements();
+    jsonResponse($result['success'], 'Announcements retrieved', $result);
+}
+
+if ($action === 'delete-announcement' && $method === 'POST') {
+    $data           = json_decode(file_get_contents('php://input'), true);
+    $announcementId = intval($data['announcement_id'] ?? 0);
+    
+    if ($announcementId === 0) {
+        jsonResponse(false, 'Invalid announcement ID');
+    }
+    
+    $result = deleteAnnouncement($announcementId);
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+// ====================
+// USER ENDPOINTS
+// ====================
+
+if ($action === 'get-users' && $method === 'GET') {
+    $result = getAllUsers();
+    jsonResponse($result['success'], $result['message'] ?? 'Users retrieved', $result);
+}
+
+if ($action === 'get-user' && $method === 'GET') {
+    $userId = intval($_GET['user_id'] ?? 0);
+    
+    if ($userId === 0) {
+        jsonResponse(false, 'Invalid user ID');
+    }
+    
+    $result = getUserById($userId);
+    jsonResponse($result['success'], $result['message'] ?? 'User retrieved', $result);
+}
+
+if ($action === 'update-profile' && $method === 'POST') {
+    if (!isLoggedIn()) {
+        jsonResponse(false, 'Unauthorized');
+    }
+    
+    $data      = json_decode(file_get_contents('php://input'), true);
+    $userId    = intval($data['user_id'] ?? 0);
+    $username  = sanitizeInput($data['username'] ?? '');
+    $email     = sanitizeInput($data['email'] ?? '');
+    $firstName = sanitizeInput($data['first_name'] ?? '');
+    $lastName  = sanitizeInput($data['last_name'] ?? '');
+    
+    if ($userId === 0) {
+        jsonResponse(false, 'Invalid user ID');
+    }
+    
+    $result = updateUserProfile($userId, $username, $email, $firstName, $lastName);
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'get-user-stats' && $method === 'GET') {
+    $userId = intval($_GET['user_id'] ?? 0);
+    
+    if ($userId === 0) {
+        jsonResponse(false, 'Invalid user ID');
+    }
+    
+    $result = getUserStats($userId);
+    jsonResponse($result['success'], 'Stats retrieved', $result);
+}
+
+// ====================
+// ADMIN ENDPOINTS
+// ====================
+
+if ($action === 'update-post-status' && $method === 'POST') {
+    $data   = json_decode(file_get_contents('php://input'), true);
+    $postId = intval($data['post_id'] ?? 0);
+    $status = sanitizeInput($data['status'] ?? '');
+    
+    if ($postId === 0 || empty($status)) {
+        jsonResponse(false, 'Missing required fields');
+    }
+    
+    $result = updatePostStatus($postId, $status);
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'dashboard-stats' && $method === 'GET') {
+    $result = getDashboardStats();
+    jsonResponse($result['success'], $result['message'] ?? 'Stats retrieved', $result);
+}
+
+// ====================
+// TAG ENDPOINTS
+// ====================
+
+if ($action === 'create-tag' && $method === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $name = sanitizeInput($data['name'] ?? '');
+    
+    if (empty($name)) {
+        jsonResponse(false, 'Missing tag name');
+    }
+    
+    $result = createTag($name);
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'add-tag-to-post' && $method === 'POST') {
+    $data   = json_decode(file_get_contents('php://input'), true);
+    $postId = intval($data['post_id'] ?? 0);
+    $tagId  = intval($data['tag_id'] ?? 0);
+    
+    if ($postId === 0 || $tagId === 0) {
+        jsonResponse(false, 'Invalid post or tag ID');
+    }
+    
+    $result = addTagToPost($postId, $tagId);
+    jsonResponse($result['success'], $result['message'], $result);
+}
+
+if ($action === 'get-post-tags' && $method === 'GET') {
+    $postId = intval($_GET['post_id'] ?? 0);
+    
+    if ($postId === 0) {
+        jsonResponse(false, 'Invalid post ID');
+    }
+    
+    $result = getPostTags($postId);
+    jsonResponse($result['success'], 'Tags retrieved', $result);
+}
+
+// If no action matched
+jsonResponse(false, 'Invalid action or method');
+?>
+

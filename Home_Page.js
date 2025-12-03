@@ -1,18 +1,37 @@
 // Home_Page.js
-document.addEventListener('DOMContentLoaded', () => {
-  // Buttons & modal
-  const postBtn      = document.querySelector('.postBtn');
-  const modal        = document.getElementById('postModal');
-  const titleInput   = document.getElementById('newPostTitle');
-  const authorInput  = document.getElementById('newPostAuthor');
-  const editor       = document.getElementById('newPostBody'); // contenteditable
-  const saveBtn      = document.getElementById('savePost');
-  const cancelBtn    = document.getElementById('cancelPost');
 
-  // Main article targets (to replace)
-  const pageTitleEl  = document.querySelector('.postTitle');   // big H1 in header row
-  const metaAuthorEl = document.querySelector('.mainPost .postMeta'); // author line
-  const bodyEl       = document.querySelector('.mainPost .postBody'); // article container
+const API_URL = './api.php';
+
+// store posts loaded from backend so we have full content on click
+let loadedPosts = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  // DOM refs
+  const postBtn         = document.querySelector('.postBtn');
+  const modal           = document.getElementById('postModal');
+  const titleInput      = document.getElementById('newPostTitle');
+  const authorInput     = document.getElementById('newPostAuthor');
+  const editor          = document.getElementById('newPostBody');
+  const saveBtn         = document.getElementById('savePost');
+  const cancelBtn       = document.getElementById('cancelPost');
+
+  const pageTitleEl     = document.querySelector('.postTitle');
+  const metaAuthorEl    = document.querySelector('.mainPost .postMeta');
+  const bodyEl          = document.querySelector('.mainPost .postBody');
+  const mainPostSection = document.querySelector('.mainPost');
+  const sidebar         = document.querySelector('.sidebar');
+
+  // --- current logged-in user (from LoginPage.js) ---
+  let currentUser = null;
+  try {
+    currentUser = JSON.parse(sessionStorage.getItem('user') || 'null');
+  } catch (_) {
+    currentUser = null;
+  }
+
+  if (currentUser && authorInput) {
+    authorInput.value = currentUser.username || currentUser.email || '';
+  }
 
   // --- modal helpers ---
   const openModal = () => {
@@ -20,35 +39,34 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.setAttribute('aria-hidden', 'false');
     setTimeout(() => titleInput.focus(), 0);
   };
+
   const closeModal = () => {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
   };
 
-  // --- simple sanitizer: allow only a safe set of tags/attributes ---
+  // --- simple sanitizer ---
   function sanitizeHTML(html) {
-    const ALLOWED = new Set(['H1','H2','H3','P','BR','STRONG','EM','B','I','U','UL','OL','LI','A']);
+    const ALLOWED = new Set([
+      'H1','H2','H3','P','BR','STRONG','EM','B','I','U','UL','OL','LI','A'
+    ]);
     const TMP = document.createElement('div');
     TMP.innerHTML = html;
 
     (function walk(node){
-      // remove script/style and disallowed nodes
       [...node.childNodes].forEach(child => {
         if (child.nodeType === 1) {
           const tag = child.tagName.toUpperCase();
           if (!ALLOWED.has(tag)) {
-            // unwrap node (keep children text)
             while (child.firstChild) node.insertBefore(child.firstChild, child);
             node.removeChild(child);
             return;
           }
-          // clean attributes
           [...child.attributes].forEach(attr => {
             const name = attr.name.toLowerCase();
             const val  = attr.value || '';
-            // only allow href on <a>, and no javascript:
             if (tag === 'A' && name === 'href' && !/^javascript:/i.test(val)) {
-              // ok
+              // allowed
             } else {
               child.removeAttribute(attr.name);
             }
@@ -63,16 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- toolbar actions ---
   function applyBlock(tag) {
-    // Use execCommand for broad browser support (still works)
     editor.focus();
-    document.execCommand('formatBlock', false, tag); // 'h1', 'h2', 'p'
+    document.execCommand('formatBlock', false, tag);
   }
   function applyInline(cmd) {
     editor.focus();
-    document.execCommand(cmd); // 'bold', 'italic', 'underline'
+    document.execCommand(cmd);
   }
 
-  // Wire up toolbar buttons
   document.querySelectorAll('.rte-btn[data-block]').forEach(btn => {
     btn.addEventListener('click', () => applyBlock(btn.dataset.block));
   });
@@ -82,14 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- open modal from Post button ---
   postBtn.addEventListener('click', () => {
-    // Clear previous values
     titleInput.value  = '';
-    authorInput.value = '';
-    editor.innerHTML  = '';  // clear contenteditable
+    authorInput.value = currentUser?.username || currentUser?.email || '';
+    editor.innerHTML  = '';
     openModal();
   });
 
-  // --- close actions ---
+  // --- close modal ---
   modal.addEventListener('click', (e) => {
     if (e.target.hasAttribute('data-close')) closeModal();
   });
@@ -98,112 +113,258 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
   });
 
- // --- publish: update main article + add sidebar card + register with search ---
-saveBtn.addEventListener('click', () => {
-  const newTitle  = titleInput.value.trim();
-  const newAuthor = authorInput.value.trim() || 'Anonymous';
-  const rawHTML   = editor.innerHTML.trim();
+  // --- show a post in the main section ---
+  function showPostInMain(post) {
+    if (!pageTitleEl || !metaAuthorEl || !bodyEl) return;
 
-  const empty = rawHTML.replace(/<br\s*\/?>/gi,'').replace(/&nbsp;/g,'').trim() === '';
-  if (!newTitle || empty) {
-    alert('Please provide both a Title and Body.');
-    return;
+    if (mainPostSection) mainPostSection.hidden = false;
+
+    const title   = post.title || 'Untitled';
+    const author  = post.username || 'Anonymous';
+    const content = post.content || '';
+
+    pageTitleEl.textContent  = title;
+    metaAuthorEl.textContent = author;
+
+    bodyEl.innerHTML = '';
+
+    const h2 = document.createElement('h2');
+    h2.textContent = title;
+
+    const contentDiv = document.createElement('div');
+    contentDiv.innerHTML = content;
+
+    bodyEl.appendChild(h2);
+    bodyEl.appendChild(contentDiv);
   }
 
-  // Sanitize once
-  const safe = sanitizeHTML(rawHTML);
+  function findPostById(id) {
+    return loadedPosts.find(p => String(p.id ?? p.post_id) === String(id));
+  }
 
-  // 1) Update main (center) article
-  if (pageTitleEl) pageTitleEl.textContent = newTitle;
-  if (metaAuthorEl) metaAuthorEl.textContent = newAuthor;
-  if (bodyEl) bodyEl.innerHTML = safe;
+  // --- attach click behavior to sidebar card ---
+  function attachCardClick(cardEl) {
+    cardEl.addEventListener('click', () => {
+      const postId = cardEl.dataset.postId;
+      const post = findPostById(postId);
+      if (!post) return;
 
-  // 2) Create a sidebar card and prepend it
-  const sidebar = document.querySelector('.sidebar');
-  if (sidebar) {
-    // Make a plain-text excerpt from the sanitized HTML
-    const tmp = document.createElement('div');
-    tmp.innerHTML = safe;
-    const plain = tmp.textContent.trim().replace(/\s+/g, ' ');
-    const excerpt = plain.length > 180 ? plain.slice(0, 177) + '…' : plain;
+      showPostInMain(post);
+
+      document
+        .querySelectorAll('.sidebar .sidePost')
+        .forEach(c => c.classList.remove('active'));
+      cardEl.classList.add('active');
+
+      document
+        .querySelector('.mainPost')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  // --- create a sidebar card (uses preview text only) ---
+  function createSidebarCard(post) {
+    if (!sidebar) return null;
 
     const card = document.createElement('div');
-    card.className = 'sidePost newly-added';
+    card.className = 'sidePost';
+    card.dataset.postId = post.id ?? post.post_id ?? '';
 
     const h3 = document.createElement('h3');
-    h3.textContent = newTitle;
+    h3.textContent = post.title || 'Untitled';
 
     const meta = document.createElement('p');
     meta.className = 'sideMeta';
-    meta.textContent = newAuthor;
+    meta.textContent = post.username || 'Anonymous';
 
     const p = document.createElement('p');
-    p.textContent = excerpt || '—';
+    const tmp = document.createElement('div');
+    tmp.innerHTML = post.content || '';
+    const plain = tmp.textContent.trim().replace(/\s+/g, ' ');
+    p.textContent = plain.length > 180 ? plain.slice(0, 177) + '…' : plain || '—';
 
     card.appendChild(h3);
     card.appendChild(meta);
     card.appendChild(p);
 
-    // Click behavior: show this post in the center
-    card.addEventListener('click', () => {
-      if (pageTitleEl) pageTitleEl.textContent = newTitle;
-      if (metaAuthorEl) metaAuthorEl.textContent = newAuthor;
-      if (bodyEl) bodyEl.innerHTML = safe;
+    attachCardClick(card);
+    sidebar.appendChild(card);
 
-      document.querySelectorAll('.sidebar .sidePost').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
+    if (window.__homeSearch?.register) {
+      window.__homeSearch.register(card);
+    }
 
-      document.querySelector('.mainPost')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-
-    sidebar.prepend(card);
-
-    // 3) Register with live-search and re-apply current filter
-    if (window.__homeSearch?.register) window.__homeSearch.register(card);
-    if (window.__homeSearch?.apply) window.__homeSearch.apply();
+    return card;
   }
 
-  closeModal();
-});
+  // --- publish: send to API + update UI ---
+  saveBtn.addEventListener('click', async () => {
+    const newTitle  = titleInput.value.trim();
+    const newAuthor = authorInput.value.trim() || (currentUser?.username || 'Anonymous');
+    const rawHTML   = editor.innerHTML.trim();
 
-});
+    const empty = rawHTML
+      .replace(/<br\s*\/?>/gi,'')
+      .replace(/&nbsp;/g,'')
+      .trim() === '';
 
+    if (!newTitle || empty) {
+      alert('Please provide both a Title and Body.');
+      return;
+    }
 
+    if (!currentUser) {
+      alert('You must be logged in to create a post.');
+      window.location.href = 'LoginPage.html';
+      return;
+    }
 
-// search for posts, through the navbar search on top
+    const safe = sanitizeHTML(rawHTML);
 
-// --- Live search filter for Home page ---
-(function () {
-  const search = document.querySelector('.search-input');
-  if (!search) return;
+    try {
+      const resp = await fetch(`${API_URL}?action=create-post`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newTitle,
+          body: safe
+        })
+      });
 
-  // Collect searchable items: the main article + each sidebar card
-  const items = [];
+      if (!resp.ok) {
+        console.error('Create post failed with status', resp.status);
+        alert('Failed to create post. Please try again.');
+        return;
+      }
 
-  // Main article (title + author + all headings/paragraphs)
-  const mainPost = document.querySelector('.mainPost');
-  if (mainPost) {
-    const mainText = [
-      document.querySelector('.postTitle')?.textContent || '',
-      document.querySelector('.mainPost .postMeta')?.textContent || '',
-      ...[...document.querySelectorAll('.mainPost .postBody h2, .mainPost .postBody p')]
-        .map(n => n.textContent || '')
-    ].join(' ').toLowerCase();
+      const result = await resp.json();
+      if (!result.success) {
+        if (result.message === 'Unauthorized') {
+          alert('Your session expired. Please log in again.');
+          window.location.href = 'LoginPage.html';
+        } else {
+          alert(result.message || 'Failed to create post.');
+        }
+        return;
+      }
 
-    items.push({ el: mainPost, text: mainText });
-  }
+      const data = result.data || {};
+      const post = {
+        id: data.post_id || null,
+        username: data.username || newAuthor,
+        title: newTitle,
+        content: safe,
+        created_at: data.created_at || new Date().toISOString().slice(0, 19).replace('T', ' ')
+      };
 
-  // Sidebar cards
-  document.querySelectorAll('.sidebar .sidePost').forEach(card => {
-    const text = [
-      card.querySelector('h3')?.textContent || '',
-      ...[...card.querySelectorAll('p')].map(p => p.textContent || '')
-    ].join(' ').toLowerCase();
+      // add to front of global list
+      loadedPosts.unshift(post);
 
-    items.push({ el: card, text });
+      showPostInMain(post);
+
+      if (sidebar) {
+        const card = createSidebarCard(post);
+        if (card) {
+          // newest at top of sidebar
+          sidebar.insertBefore(card, sidebar.firstChild);
+          document
+            .querySelectorAll('.sidebar .sidePost')
+            .forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+        }
+      }
+
+      if (window.__homeSearch?.apply) {
+        window.__homeSearch.apply();
+      }
+
+      closeModal();
+    } catch (err) {
+      console.error('Error creating post:', err);
+      alert('An error occurred while creating the post.');
+    }
   });
 
-  // Optional "no results" message
+  // --- load posts from backend: GLOBAL FEED, MOST RECENT FIRST ---
+  async function loadPostsFromAPI() {
+    if (!pageTitleEl || !bodyEl || !sidebar) return;
+
+    if (mainPostSection) mainPostSection.hidden = false;
+
+    sidebar.innerHTML = '';
+    bodyEl.innerHTML = '';
+    pageTitleEl.textContent = 'Loading posts...';
+    metaAuthorEl.textContent = '';
+
+    try {
+      const resp = await fetch(`${API_URL}?action=get-home-posts`);
+      if (!resp.ok) {
+        console.error('Failed to load posts:', resp.status);
+        pageTitleEl.textContent = 'Error loading posts';
+        bodyEl.innerHTML = '<p>Please try again later.</p>';
+        return;
+      }
+
+      const result = await resp.json();
+      let posts = (result.success && result.data && Array.isArray(result.data.posts))
+        ? result.data.posts
+        : [];
+
+      // ✅ GLOBAL FEED: do NOT filter by currentUser
+      // Sort by created_at DESC (newest first)
+      posts.sort((a, b) => {
+        const da = new Date((a.created_at || '').replace(' ', 'T'));
+        const db = new Date((b.created_at || '').replace(' ', 'T'));
+        return db - da;
+      });
+
+      loadedPosts = posts;
+
+      if (!posts.length) {
+        pageTitleEl.textContent = 'No posts yet';
+        bodyEl.innerHTML = '<p>Be the first to create a post using the Post button.</p>';
+        return;
+      }
+
+      // Show the most recent post in the main section
+      showPostInMain(posts[0]);
+
+      // Build sidebar cards for all posts (already sorted newest→oldest)
+      posts.forEach(post => {
+        createSidebarCard(post);
+      });
+    } catch (err) {
+      console.error('Error loading posts:', err);
+      pageTitleEl.textContent = 'Error loading posts';
+      bodyEl.innerHTML = '<p>Could not load posts. Check console for details.</p>';
+    }
+  }
+
+  loadPostsFromAPI();
+});
+
+
+// --- Live search: ONLY affects sidebar cards, NOT the main article ---
+(function () {
+  const search  = document.querySelector('.search-input');
+  const sidebar = document.querySelector('.sidebar');
+  if (!search || !sidebar) return;
+
+  const items = [];
+
+  function indexExistingCards() {
+    items.length = 0;
+    sidebar.querySelectorAll('.sidePost').forEach(card => {
+      const text = [
+        card.querySelector('h3')?.textContent || '',
+        ...card.querySelectorAll('p')
+      ].map(p => p.textContent || '').join(' ').toLowerCase();
+      items.push({ el: card, text });
+    });
+  }
+
+  indexExistingCards();
+
   let emptyMsg = document.getElementById('no-results-home');
   if (!emptyMsg) {
     emptyMsg = document.createElement('div');
@@ -216,7 +377,6 @@ saveBtn.addEventListener('click', () => {
     document.querySelector('.content')?.appendChild(emptyMsg);
   }
 
-  // Small debounce
   let t = null;
   const debounce = (fn, ms = 80) => (...args) => {
     clearTimeout(t); t = setTimeout(() => fn(...args), ms);
@@ -228,7 +388,7 @@ saveBtn.addEventListener('click', () => {
 
     items.forEach(({ el, text }) => {
       const match = !q || text.includes(q);
-      el.hidden = !match;   // keeps layout clean and is accessible
+      el.hidden = !match;
       if (match) shown++;
     });
 
@@ -237,49 +397,22 @@ saveBtn.addEventListener('click', () => {
 
   search.addEventListener('input', debounce(applyFilter));
 
-  // ✅ NEW: expose hooks so newly created cards can join the index
+  // let JS that creates new cards add them to the index
   window.__homeSearch = {
     register(cardEl) {
       const text = [
         cardEl.querySelector('h3')?.textContent || '',
-        ...[...cardEl.querySelectorAll('p')].map(p => p.textContent || '')
-      ].join(' ').toLowerCase();
+        ...cardEl.querySelectorAll('p')
+      ].map(p => p.textContent || '').join(' ').toLowerCase();
       items.push({ el: cardEl, text });
     },
     apply: applyFilter
   };
-
 })();
 
 
 
-// --- Click on sidebar post -> show its content in main section ---
-(function () {
-  const mainTitle  = document.querySelector('.postTitle');
-  const mainAuthor = document.querySelector('.mainPost .postMeta');
-  const mainBody   = document.querySelector('.mainPost .postBody');
 
-  if (!mainTitle || !mainAuthor || !mainBody) return;
 
-  document.querySelectorAll('.sidebar .sidePost').forEach(card => {
-    card.addEventListener('click', () => {
-      const title  = card.querySelector('h3')?.textContent.trim() || 'Untitled';
-      const author = card.querySelector('.sideMeta')?.textContent.trim() || 'Anonymous';
-      const quote  = card.querySelector('p:not(.sideMeta)')?.textContent.trim() || '';
-
-      // Replace main article content
-      mainTitle.textContent = title;
-      mainAuthor.textContent = author;
-      mainBody.innerHTML = `
-        <h2>${title}</h2>
-        <p>${quote}</p>
-      `;
-
-      // Optional: visually indicate which card is active
-      document.querySelectorAll('.sidebar .sidePost').forEach(p => p.classList.remove('active'));
-      card.classList.add('active');
-    });
-  });
-})();
 
 

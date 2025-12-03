@@ -30,75 +30,23 @@
     <main class="content">
       <!-- Title + Post Button Row -->
       <div class="contentHeader">
-        <h1 class="postTitle">My First Year at CSUSM</h1>
+        <!-- This title will be replaced by JS with the current post title -->
+        <h1 class="postTitle">Latest Posts</h1>
         <button class="postBtn" id="openPostModal">Post</button>
       </div>
 
       <!-- Main Blog Section -->
       <section class="mainPost">
-        <p class="postMeta">Jordan Kopp</p>
+        <!-- JS will set the author name here -->
+        <p class="postMeta"></p>
 
-        <article class="postBody">
-          <h2>A New Beginning</h2>
-          <p>
-            Starting the first year at California State University San Marcos is
-            both exciting and overwhelming. From navigating the sprawling campus
-            to meeting new classmates, students quickly learn how to balance
-            independence with responsibility. Orientation week sets the tone,
-            introducing Cougars to the supportive community and academic
-            expectations that will define their college experience.
-          </p>
-
-          <h2>Finding Balance</h2>
-          <p>
-            As the semester unfolds, first-year students discover the importance
-            of time management. Balancing lectures, assignments, and social life
-            becomes an art form. Many take advantage of campus resources like
-            the library, tutoring center, and student organizations to stay on
-            track and connected. It’s a year of trial, error, and personal
-            growth.
-          </p>
-
-          <h2>Building Community</h2>
-          <p>
-            By spring, what once felt unfamiliar starts to feel like home.
-            Friendships deepen, routines solidify, and students begin to
-            envision their paths at CSUSM. Whether through study groups, campus
-            events, or late-night conversations in the dorms, the first year
-            lays the foundation for both academic success and lasting memories.
-          </p>
-        </article>
+        <!-- JS will inject the selected post content here -->
+        <article class="postBody"></article>
       </section>
 
       <!-- Sidebar Section -->
-      <aside class="sidebar">
-        <div class="sidePost">
-          <h3>What It’s Like Working for the Library</h3>
-          <p class="sideMeta">Anthony Jones</p>
-          <p>
-            "Some days I am so stressed, but at least I know I can catch up on
-            school work if no one needs me."
-          </p>
-        </div>
-
-        <div class="sidePost">
-          <h3>When I Need a Pick Me Up</h3>
-          <p class="sideMeta">Daisy Lee</p>
-          <p>
-            "When I'm having a rough day, I like to get an iced Brown Sugar
-            Shaken Espresso from Starbucks. They opened a new one in the USU!"
-          </p>
-        </div>
-
-        <div class="sidePost">
-          <h3>My Favorite Study Spot on Campus</h3>
-          <p class="sideMeta">Elisa Byfield</p>
-          <p>
-            "I like to get my work done in the Reading Room on the fifth floor
-            of the library near the balcony — quiet and peaceful!"
-          </p>
-        </div>
-      </aside>
+      <!-- JS will create .sidePost cards in here based on DB posts -->
+      <aside class="sidebar"></aside>
     </main>
 
     <!-- Create Post Modal -->
@@ -126,9 +74,7 @@
 
           <label class="modal-label" for="newPostBody">Body</label>
 
-          <!-- OLD: <textarea id="newPostBody" rows="8" placeholder="Write your post..."></textarea> -->
-
-          <!-- NEW: toolbar + contenteditable editor -->
+          <!-- Rich text editor toolbar -->
           <div class="rte-toolbar" aria-label="Formatting toolbar">
             <button
               type="button"

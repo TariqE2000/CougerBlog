@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CougerBlog – Register</title>
+    <!-- Reuse LoginPage styles for layout and form UI -->
     <link rel="stylesheet" href="LoginPage.css" />
   </head>
   <body>
@@ -11,14 +12,14 @@
       <section aria-label="Registration panel" class="loginSection">
         <header class="loginHeader">
           <div class="cougarIcon">
-          <a href="Home_Page.html">
-                <img 
-                    src="Icons/cougar.png"
-                    alt="Cougar Logo"
-                    width="70"
-                    height="70"
-                    style="cursor: pointer;"
-                  />
+            <a href="Home_Page.html">
+              <img
+                src="Icons/cougar.png"
+                alt="Cougar Logo"
+                width="70"
+                height="70"
+                style="cursor: pointer;"
+              />
             </a>
           </div>
           <div class="welcomeHeader">
@@ -51,7 +52,7 @@
           </div>
 
           <div>
-            <label for="email">Email</label>
+            <label for="email">Email*</label>
             <input
               type="email"
               id="email"
@@ -62,7 +63,7 @@
           </div>
 
           <div>
-            <label for="password">Password</label>
+            <label for="password">Password*</label>
             <input
               type="password"
               id="password"
@@ -74,7 +75,7 @@
           </div>
 
           <div>
-            <label for="confirmPassword">Confirm password</label>
+            <label for="confirmPassword">Confirm password*</label>
             <input
               type="password"
               id="confirmPassword"
@@ -109,5 +110,8 @@
         />
       </section>
     </main>
+
+    <!-- Register page JS: handles validation + call to api.php?action=register -->
+    <script src="RegisterPage.js"></script>
   </body>
 </html>

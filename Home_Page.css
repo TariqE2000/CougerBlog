@@ -1,4 +1,9 @@
 /* ========== GLOBAL ========== */
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
   background-color: #002e5a;
@@ -56,7 +61,6 @@ body {
   text-decoration: underline;
 }
 
-
 .postBtn {
   background-color: #3ab5e8;
   border: none;
@@ -90,6 +94,7 @@ body {
   grid-template-rows: auto auto;
   gap: 40px;
   padding: 40px 80px;
+  align-items: flex-start; /* keep content aligned at top */
 }
 
 /* Title Row */
@@ -133,6 +138,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+
+  /* 🔽 make sidebar scrollable instead of whole page */
+  max-height: calc(100vh - 80px); /* adjust 80px if your navbar height changes */
+  overflow-y: auto;
+  padding-right: 0.5rem; /* so scrollbar doesn't cover text */
 }
 
 .sidePost {
@@ -154,6 +164,24 @@ body {
   margin-bottom: 8px;
 }
 
+/* Optional: nicer scrollbar for sidebar (WebKit browsers) */
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 999px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
 /* ========== POST MODAL ========== */
 .modal { position: fixed; inset: 0; display: none; z-index: 1000; }
 .modal.open { display: block; }
@@ -171,7 +199,6 @@ body {
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0,0,0,.35);
 
-  /* NEW FIX */
   max-height: 88vh;        /* keep it within the viewport */
   display: flex;
   flex-direction: column;
@@ -220,6 +247,7 @@ body {
 .sidePost.newly-added {
   outline: 2px solid rgba(58,181,232,.35);
 }
+
 @media (max-width: 640px) {
   .modal-dialog { margin-top: 4vh; }
 }
@@ -259,4 +287,5 @@ body {
   content: attr(placeholder);
   color: #6b7280;
 }
+
 

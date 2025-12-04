@@ -4,13 +4,70 @@
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
 body {
-  background: #0b3760;                 /* page background */
-  color: #ffffff;                       /* default text */
+  background: #0b3760;
+  color: #ffffff;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 a { color: #3ab5e8; text-decoration: none; }
 a:hover { opacity: .9; }
 
+/* =========================
+   NAVBAR
+   ========================= */
+.navbar {
+  width: 100%;
+  background-color: #111;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-logo {
+  width: 40px;
+  height: 40px;
+}
+
+.nav-link1,
+.nav-link2,
+.nav-link3 {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-link3 {
+  color: #3ab5e8; /* profile link highlighted */
+}
+
+.nav-link1:hover,
+.nav-link2:hover,
+.nav-link3:hover {
+  text-decoration: underline;
+}
+
+/* center search bar */
+.nav-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.search-input {
+  width: 300px;
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+}
 
 /* =========================
    PROFILE PAGE
@@ -34,8 +91,19 @@ a:hover { opacity: .9; }
 }
 
 /* editable username block */
-.username-wrap { margin-top: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-#display-username { margin: 16px 0 0; font-size: 28px; font-weight: 800; letter-spacing: .2px; }
+.username-wrap {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+#display-username {
+  margin: 16px 0 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
 .edit-username { font-size: 12px; opacity: .85; }
 .edit-username:hover { opacity: 1; }
 
@@ -59,7 +127,9 @@ a:hover { opacity: .9; }
 
 /* stats */
 .profile-stats {
-  margin-top: 16px; display: flex; gap: 12px;
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
 }
 .stat {
   background: #222222;
@@ -84,36 +154,32 @@ a:hover { opacity: .9; }
   background: #222222;
   border-radius: 10px;
   padding: 16px 16px 12px;
-  cursor: pointer;                 /* indicate clickable for editor */
+  cursor: pointer;
 }
 .post-card:focus-within,
-.post-card:hover { outline: 2px solid rgba(58,181,232,.35); }
+.post-card:hover {
+  outline: 2px solid rgba(58,181,232,.35);
+}
 
-.post-card-title { margin: 0 0 10px; font-size: 18px; font-weight: 800; }
+.post-card-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 800;
+}
 
 .post-card-body p {
-  margin: 0 0 10px; line-height: 1.5; color: rgba(255,255,255,.95);
+  margin: 0 0 10px;
+  line-height: 1.5;
+  color: rgba(255,255,255,.95);
 }
 
-/* when user formats as Title */
-.post-card-body p.title-style {
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
+.post-card-meta {
   margin-top: 8px;
-  letter-spacing: .4px;
-}
-
-/* when user formats as Paragraph */
-.post-card-body p.paragraph-style {
-  font-size: 16px;
-  font-weight: 400;
-}
-
-.post-card-meta { 
-  margin-top: 8px;
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 12px; color: rgba(255,255,255,.9);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: rgba(255,255,255,.9);
 }
 
 /* =========================
@@ -122,6 +188,7 @@ a:hover { opacity: .9; }
 .modal { position: fixed; inset: 0; display: none; z-index: 1000; }
 .modal.open { display: block; }
 .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
+
 .modal-dialog {
   position: relative;
   margin: 6vh auto 0;
@@ -132,16 +199,35 @@ a:hover { opacity: .9; }
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0,0,0,.35);
+
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
 }
+
 .modal-close {
-  position: absolute; top: 10px; right: 12px;
-  border: 0; background: transparent;
-  font-size: 24px; line-height: 1; cursor: pointer; color: #4b5563;
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #4b5563;
 }
+
 .modal-header { padding: 16px 20px; background: #f3f4f6; }
-.modal-body { padding: 18px 20px; display: grid; gap: 10px; }
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px;
+  display: grid;
+  gap: 10px;
+}
 .modal-label { font-size: 13px; color: #374151; }
-#edit-title, #edit-body {
+
+#edit-title {
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 10px;
@@ -149,136 +235,88 @@ a:hover { opacity: .9; }
   outline: none;
   font: inherit;
 }
-#edit-title:focus, #edit-body:focus {
+#edit-title:focus {
   border-color: #3ab5e8;
   box-shadow: 0 0 0 3px rgba(58,181,232,.25);
 }
 
 .modal-actions {
-  display: flex; justify-content: flex-end; gap: 10px;
-  padding: 14px 20px; background: #f9fafb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  background: #f9fafb;
 }
-.btn { border: 0; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 700; }
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 700;
+}
 .btn-primary { background: #3ab5e8; color: #002E5A; }
 .btn-ghost { background: #e5e7eb; color: #111827; }
 
-/* formatting buttons */
-.format-toolbar {
+/* =========================
+   RTE (Rich Text Editor) – SAME AS HOME
+   ========================= */
+.rte-toolbar {
   display: flex;
-  gap: 10px;
-  margin-bottom: 6px;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0 8px;
 }
-.format-btn {
+.rte-sep {
+  width: 1px;
+  height: 20px;
+  background: #e5e7eb;
+  display: inline-block;
+}
+.rte-btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: 700;
   background: #e5e7eb;
   color: #111827;
-  border-radius: 6px;
-  border: none;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
 }
-.format-btn.active {
-  background: #3ab5e8;
-  color: #002E5A;
-}
+.rte-btn:hover { filter: brightness(0.95); }
 
-/* textarea preview style when Title mode is active */
-#edit-body.title-style {
-  font-size: 22px;
-  font-weight: 800;
+.rte-editor {
+  min-height: 180px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  font: inherit;
+  background: #fff;
+  color: #0b1730;
+  overflow-y: auto;
+}
+.rte-editor:focus {
+  border-color: #3ab5e8;
+  box-shadow: 0 0 0 3px rgba(58,181,232,.25);
+}
+.rte-editor:empty:before {
+  content: attr(placeholder);
+  color: #6b7280;
 }
 
 /* =========================
    Footer
    ========================= */
-footer { text-align: center; padding: 32px 12px; color: rgba(255,255,255,.8); }
+footer {
+  text-align: center;
+  padding: 32px 12px;
+  color: rgba(255,255,255,.8);
+}
 
 /* =========================
    Responsive tweaks
    ========================= */
 @media (max-width: 640px) {
-  nav { padding: 12px 16px; }
-  .search input { width: 240px; }
   .profile-page { padding: 32px 16px 56px; }
   .profile-stats { flex-wrap: wrap; }
   .modal-dialog { margin-top: 4vh; }
-}
-
-
-/* ========== NAVBAR ========== */
-.navbar {
-  width: 100%;
-  background-color: #111;
-  padding: 10px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.nav-logo {
-  width: 40px;
-  height: 40px;
-}
-
-.nav-link1 {
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.nav-link2 {
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.nav-link3 {
-  color: #3ab5e8;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.nav-link1:hover {
-  text-decoration: underline;
-}
-
-.nav-link2:hover {
-  text-decoration: underline;
-}
-
-
-.postBtn {
-  background-color: #3ab5e8;
-  border: none;
-  color: white;
-  padding: 6px 14px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* ========== CENTER SEARCH BAR ========== */
-
-.nav-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-}
-
-.search-input {
-  width: 300px;
-  max-width: 70%;
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: none;
-  outline: none;
 }

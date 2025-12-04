@@ -20,11 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalBackdrop     = postModal?.querySelector('[data-close-modal]');
   const modalCloseBtn     = postModal?.querySelector('.modal-close');
   const editTitleInput    = document.getElementById('edit-title');
-  const editBodyTextarea  = document.getElementById('edit-body');
+  const editBodyEditor    = document.getElementById('editPostBody'); // contenteditable
   const savePostBtn       = document.getElementById('save-post');
   const deletePostBtn     = document.getElementById('delete-post');
 
-  // 🔍 search bar in navbar
+  // search bar in navbar
   const searchInput       = document.querySelector('.search-input');
 
   let currentUser  = null;
@@ -71,6 +71,40 @@ document.addEventListener('DOMContentLoaded', () => {
     postModal.classList.remove('open');
     postModal.setAttribute('aria-hidden', 'true');
     editingPost = null;
+  }
+
+  // simple sanitizer (same idea as Home_Page.js)
+  function sanitizeHTML(html) {
+    const ALLOWED = new Set([
+      'H1','H2','H3','P','BR','STRONG','EM','B','I','U','UL','OL','LI','A'
+    ]);
+    const TMP = document.createElement('div');
+    TMP.innerHTML = html;
+
+    (function walk(node){
+      [...node.childNodes].forEach(child => {
+        if (child.nodeType === 1) {
+          const tag = child.tagName.toUpperCase();
+          if (!ALLOWED.has(tag)) {
+            while (child.firstChild) node.insertBefore(child.firstChild, child);
+            node.removeChild(child);
+            return;
+          }
+          [...child.attributes].forEach(attr => {
+            const name = attr.name.toLowerCase();
+            const val  = attr.value || '';
+            if (tag === 'A' && name === 'href' && !/^javascript:/i.test(val)) {
+              // allowed
+            } else {
+              child.removeAttribute(attr.name);
+            }
+          });
+          walk(child);
+        }
+      });
+    })(TMP);
+
+    return TMP.innerHTML;
   }
 
   // ---------- username editing UI ----------
@@ -125,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       currentUser.username = newUsername;
-      // Prefer full name if present, otherwise new username
       const displayName =
         (currentUser.first_name || currentUser.last_name)
           ? `${currentUser.first_name} ${currentUser.last_name}`.trim()
@@ -172,8 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
       el.hidden = !match;
       if (match) shown++;
     });
-
-    // optional: could show "no results" message here if you want
   }
 
   function renderPostsGrid() {
@@ -238,12 +269,12 @@ document.addEventListener('DOMContentLoaded', () => {
       card.appendChild(bodyDiv);
       card.appendChild(footer);
 
-      // clicking card opens edit modal
+      // clicking card opens edit modal with FULL HTML content
       card.addEventListener('click', () => {
         editingPost = post;
         if (editTitleInput) editTitleInput.value = post.title || '';
-        if (editBodyTextarea) {
-          editBodyTextarea.value = htmlToPlainText(post.content || post.body || '');
+        if (editBodyEditor) {
+          editBodyEditor.innerHTML = post.content || post.body || '';
         }
         openPostModal();
       });
@@ -251,9 +282,8 @@ document.addEventListener('DOMContentLoaded', () => {
       postsGrid.appendChild(card);
     });
 
-    // after cards exist, rebuild search index
     rebuildSearchIndex();
-    applyProfileSearch(); // respect any existing query
+    applyProfileSearch();
   }
 
   function updateStatsFromPosts() {
@@ -296,17 +326,24 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const newTitle = editTitleInput.value.trim();
-    const newBody  = editBodyTextarea.value.trim();
+    const rawHTML  = (editBodyEditor?.innerHTML || '').trim();
 
-    if (!newTitle || !newBody) {
+    const empty = rawHTML
+      .replace(/<br\s*\/?>/gi,'')
+      .replace(/&nbsp;/g,'')
+      .trim() === '';
+
+    if (!newTitle || empty) {
       alert('Both title and body are required.');
       return;
     }
 
+    const safeHTML = sanitizeHTML(rawHTML);
+
     const payload = {
       post_id: editingPost.id ?? editingPost.post_id,
       title: newTitle,
-      body: newBody
+      body: safeHTML   // send full HTML, not plain text
     };
 
     try {
@@ -328,8 +365,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      editingPost.title = newTitle;
-      editingPost.content = newBody;
+      // update local copy so UI + home page keep formatting
+      editingPost.title   = newTitle;
+      editingPost.content = safeHTML;
 
       renderPostsGrid();
       closePostModal();
@@ -473,7 +511,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 🔍 live search: filter profile posts only
+  // RTE toolbar actions (same as Home_Page)
+  function applyBlock(tag) {
+    editBodyEditor?.focus();
+    document.execCommand('formatBlock', false, tag);
+  }
+  function applyInline(cmd) {
+    editBodyEditor?.focus();
+    document.execCommand(cmd);
+  }
+
+  document.querySelectorAll('.rte-btn[data-block]').forEach(btn => {
+    btn.addEventListener('click', () => applyBlock(btn.dataset.block));
+  });
+  document.querySelectorAll('.rte-btn[data-inline]').forEach(btn => {
+    btn.addEventListener('click', () => applyInline(btn.dataset.inline));
+  });
+
+  // live search for profile posts
   if (searchInput) {
     let t;
     const debounce = (fn, ms = 80) => (...args) => {

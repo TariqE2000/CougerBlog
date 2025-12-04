@@ -8,7 +8,7 @@
   </head>
   <body>
     <!-- =========================
-         Top Navigation (unchanged)
+         Top Navigation
          ========================= -->
     <header class="navbar">
       <div class="nav-left">
@@ -43,7 +43,7 @@
             />
           </figure>
 
-          <!-- ✅ Editable Username Wrapper -->
+          <!-- Editable Username Wrapper -->
           <div class="username-wrap">
             <h1 id="display-username">Lourm Ipsume</h1>
 
@@ -59,157 +59,25 @@
               id="edit-username"
               href="#"
               aria-label="Edit username"
-              >Edit Username</a
             >
+              Edit Username
+            </a>
           </div>
 
           <div class="profile-stats" aria-label="Profile statistics">
             <div class="stat">
               <div class="stat-label">Total views</div>
-              <div class="stat-value">6767</div>
+              <div class="stat-value">0</div>
             </div>
             <div class="stat">
               <div class="stat-label">Total posts</div>
-              <div class="stat-value">67</div>
+              <div class="stat-value">0</div>
             </div>
           </div>
         </section>
 
-        <!-- Posts grid -->
-        <section class="posts-grid" aria-label="User posts">
-          <!-- Card 1 -->
-          <article class="post-card">
-            <header class="post-card-header">
-              <h3 class="post-card-title">My First Week Back on Campus</h3>
-            </header>
-            <div class="post-card-body">
-              <p>
-                From parking chaos to discovering a new quiet spot, here’s
-                everything I learned in week one. Pro tip: the east stairwell is
-                faster than the elevators at 9am.
-              </p>
-            </div>
-            <footer class="post-card-meta">
-              <span class="date"
-                ><time datetime="2025-10-09"
-                  >Posted on October 9, 2025</time
-                ></span
-              >
-              <span class="views">views 67</span>
-            </footer>
-          </article>
-
-          <!-- Card 2 -->
-          <article class="post-card">
-            <header class="post-card-header">
-              <h3 class="post-card-title">
-                What I Wish I Knew Before Midterms
-              </h3>
-            </header>
-            <div class="post-card-body">
-              <p>
-                Office hours are underrated. Start the practice exams two days
-                earlier than you think. And yes—sleep matters more than one more
-                page of notes.
-              </p>
-            </div>
-            <footer class="post-card-meta">
-              <span class="date"
-                ><time datetime="2025-10-09"
-                  >Posted on October 9, 2025</time
-                ></span
-              >
-              <span class="views">views 67</span>
-            </footer>
-          </article>
-
-          <!-- Card 3 -->
-          <article class="post-card">
-            <header class="post-card-header">
-              <h3 class="post-card-title">
-                Budgeting as a Student (That Actually Works)
-              </h3>
-            </header>
-            <div class="post-card-body">
-              <p>
-                I split expenses into: musts, fun, and future me. Auto-transfer
-                10% to savings the day you get paid. Future you will send
-                thanks.
-              </p>
-            </div>
-            <footer class="post-card-meta">
-              <span class="date"
-                ><time datetime="2025-10-08"
-                  >Posted on October 8, 2025</time
-                ></span
-              >
-              <span class="views">views 54</span>
-            </footer>
-          </article>
-
-          <!-- Card 4 -->
-          <article class="post-card">
-            <header class="post-card-header">
-              <h3 class="post-card-title">Dorm Organization Hacks</h3>
-            </header>
-            <div class="post-card-body">
-              <p>
-                Under-bed storage, command hooks, and a label maker changed my
-                life. Keep the desk clean; your brain will follow.
-              </p>
-            </div>
-            <footer class="post-card-meta">
-              <span class="date"
-                ><time datetime="2025-10-08"
-                  >Posted on October 8, 2025</time
-                ></span
-              >
-              <span class="views">views 41</span>
-            </footer>
-          </article>
-
-          <!-- Card 5 -->
-          <article class="post-card">
-            <header class="post-card-header">
-              <h3 class="post-card-title">Three Underrated Study Spots</h3>
-            </header>
-            <div class="post-card-body">
-              <p>
-                The greenhouse benches, the engineering atrium after 6, and the
-                quiet nook behind the arts building. Bring a sweater.
-              </p>
-            </div>
-            <footer class="post-card-meta">
-              <span class="date"
-                ><time datetime="2025-10-07"
-                  >Posted on October 7, 2025</time
-                ></span
-              >
-              <span class="views">views 33</span>
-            </footer>
-          </article>
-
-          <!-- Card 6 -->
-          <article class="post-card">
-            <header class="post-card-header">
-              <h3 class="post-card-title">Why Joining Clubs Helped My GPA</h3>
-            </header>
-            <div class="post-card-body">
-              <p>
-                Accountability, community, and surprise mentors. The time you
-                “lose” to meetings is focus you gain the rest of the week.
-              </p>
-            </div>
-            <footer class="post-card-meta">
-              <span class="date"
-                ><time datetime="2025-10-07"
-                  >Posted on October 7, 2025</time
-                ></span
-              >
-              <span class="views">views 29</span>
-            </footer>
-          </article>
-        </section>
+        <!-- Posts grid (filled by JS with user's posts) -->
+        <section class="posts-grid" aria-label="User posts"></section>
       </div>
     </main>
 
@@ -242,43 +110,81 @@
           <label class="modal-label" for="edit-title">Title</label>
           <input id="edit-title" type="text" placeholder="Post title" />
 
-          <label class="modal-label" for="edit-body">Body</label>
+          <label class="modal-label" for="editPostBody">Body</label>
 
-          <!-- ✅ formatting toolbar -->
-          <div class="format-toolbar">
+          <!-- ✅ SAME RTE TOOLBAR STYLE AS HOME PAGE -->
+          <div class="rte-toolbar" aria-label="Formatting toolbar">
             <button
               type="button"
-              class="format-btn active"
-              data-type="paragraph"
-              aria-pressed="true"
-            >
-              Paragraph
-            </button>
-            <button
-              type="button"
-              class="format-btn"
-              data-type="title"
-              aria-pressed="false"
+              class="rte-btn"
+              data-block="h1"
+              title="Title (H1)"
             >
               Title
             </button>
+            <button
+              type="button"
+              class="rte-btn"
+              data-block="h2"
+              title="Subtitle (H2)"
+            >
+              Subtitle
+            </button>
+            <button
+              type="button"
+              class="rte-btn"
+              data-block="p"
+              title="Paragraph"
+            >
+              Body
+            </button>
+            <span class="rte-sep"></span>
+            <button
+              type="button"
+              class="rte-btn"
+              data-inline="bold"
+              title="Bold"
+            >
+              B
+            </button>
+            <button
+              type="button"
+              class="rte-btn"
+              data-inline="italic"
+              title="Italic"
+            >
+              <em>I</em>
+            </button>
+            <button
+              type="button"
+              class="rte-btn"
+              data-inline="underline"
+              title="Underline"
+            >
+              <u>U</u>
+            </button>
           </div>
 
-          <textarea
-            id="edit-body"
-            rows="8"
+          <!-- ✅ contenteditable editor, like Home_Page -->
+          <div
+            id="editPostBody"
+            class="rte-editor"
+            contenteditable="true"
+            role="textbox"
+            aria-multiline="true"
             placeholder="Write your post..."
-          ></textarea>
+          ></div>
         </div>
 
         <footer class="modal-actions">
+          <!-- ✅ DIFFERENCE FROM HOME: Save + Delete -->
           <button id="delete-post" class="btn btn-ghost">Delete</button>
           <button id="save-post" class="btn btn-primary">Save</button>
         </footer>
       </div>
     </div>
 
-    <!-- Inline editing logic (username) + modal script -->
+    <!-- Profile JS -->
     <script src="ProfilePage.js"></script>
 
     <!-- Screen-reader-only helper -->
@@ -294,3 +200,5 @@
     </style>
   </body>
 </html>
+
+

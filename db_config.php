@@ -4,10 +4,11 @@
 // ====================
 
 
-define('DB_HOST', '127.0.0.1');     // local MySQL
-define('DB_USER', 'root');          // or whatever user you use locally
-define('DB_PASS', '');              // root password if you set one
-define('DB_NAME', 'cougerblog');    // the local DB you created
+define('DB_HOST', '127.0.0.1'); // local MySQL
+define('DB_USER', 'root');      // your MySQL user
+define('DB_PASS', '7749');      // your MySQL root password
+define('DB_NAME', 'cougerblog'); // database name (we'll create this)
+
 
 function getDBConnection() {
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -488,10 +489,13 @@ function searchPosts($query) {
 
 function addComment($postId, $authorId, $content) {
     $conn = getDBConnection();
-    
-    $stmt = $conn->prepare("INSERT INTO Comments (post_id, author_id, content, created_at) VALUES (?, ?, ?, NOW())");
+
+    $stmt = $conn->prepare("
+        INSERT INTO Comments (post_id, author_id, content, created_at)
+        VALUES (?, ?, ?, NOW())
+    ");
     $stmt->bind_param("iis", $postId, $authorId, $content);
-    
+
     if ($stmt->execute()) {
         $commentId = $conn->insert_id;
         $stmt->close();
@@ -506,56 +510,61 @@ function addComment($postId, $authorId, $content) {
 
 function getCommentsByPost($postId) {
     $conn = getDBConnection();
-    
+
     $stmt = $conn->prepare("
-        SELECT c.*, u.username, u.first_name, u.last_name 
-        FROM Comments c 
-        LEFT JOIN Users u ON c.author_id = u.id 
-        WHERE c.post_id = ? 
+        SELECT 
+            c.comment_id,
+            c.post_id,
+            c.author_id,
+            c.content,
+            c.created_at,
+            u.username
+        FROM Comments c
+        LEFT JOIN Users u ON c.author_id = u.user_id
+        WHERE c.post_id = ?
         ORDER BY c.created_at ASC
     ");
     $stmt->bind_param("i", $postId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     $comments = [];
     while ($row = $result->fetch_assoc()) {
         $comments[] = $row;
     }
-    
+
     $stmt->close();
     $conn->close();
-    
+
     return ['success' => true, 'comments' => $comments];
 }
 
 function deleteComment($commentId, $userId) {
     $conn = getDBConnection();
-    
-    // Verify ownership or admin
-    $stmt = $conn->prepare("SELECT author_id FROM Comments WHERE id = ?");
+
+    // Check ownership or admin
+    $stmt = $conn->prepare("SELECT author_id FROM Comments WHERE comment_id = ?");
     $stmt->bind_param("i", $commentId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 0) {
         $stmt->close();
         $conn->close();
         return ['success' => false, 'message' => 'Comment not found'];
     }
-    
+
     $comment = $result->fetch_assoc();
+    $stmt->close();
+
     if ($comment['author_id'] != $userId && !isAdmin()) {
-        $stmt->close();
         $conn->close();
         return ['success' => false, 'message' => 'Unauthorized'];
     }
-    
-    $stmt->close();
-    
-    $stmt = $conn->prepare("DELETE FROM Comments WHERE id = ?");
+
+    $stmt = $conn->prepare("DELETE FROM Comments WHERE comment_id = ?");
     $stmt->bind_param("i", $commentId);
-    
+
     if ($stmt->execute()) {
         $stmt->close();
         $conn->close();
@@ -567,21 +576,24 @@ function deleteComment($commentId, $userId) {
     }
 }
 
-
 // ====================
 // announcements.php - Announcement Functions
 // ====================
 
-function createAnnouncement($title, $body) {
+function createAnnouncement($title, $content) {
     if (!isAdmin()) {
         return ['success' => false, 'message' => 'Unauthorized'];
     }
-    
+
     $conn = getDBConnection();
-    
-    $stmt = $conn->prepare("INSERT INTO Announcements (title, body, created_at) VALUES (?, ?, NOW())");
-    $stmt->bind_param("ss", $title, $body);
-    
+    $username = $_SESSION['username'] ?? 'admin';
+
+    $stmt = $conn->prepare("
+        INSERT INTO Announcements (username, title, content, created_at)
+        VALUES (?, ?, ?, NOW())
+    ");
+    $stmt->bind_param("sss", $username, $title, $content);
+
     if ($stmt->execute()) {
         $announcementId = $conn->insert_id;
         $stmt->close();
@@ -596,16 +608,23 @@ function createAnnouncement($title, $body) {
 
 function getAllAnnouncements() {
     $conn = getDBConnection();
-    
-    $result = $conn->query("SELECT * FROM Announcements ORDER BY created_at DESC");
-    
+
+    $result = $conn->query("
+        SELECT announcement_id, username, title, content, created_at
+        FROM Announcements
+        ORDER BY created_at DESC
+    ");
+
     $announcements = [];
-    while ($row = $result->fetch_assoc()) {
-        $announcements[] = $row;
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $announcements[] = $row;
+        }
+        $result->free();
     }
-    
+
     $conn->close();
-    
+
     return ['success' => true, 'announcements' => $announcements];
 }
 
@@ -613,12 +632,12 @@ function deleteAnnouncement($announcementId) {
     if (!isAdmin()) {
         return ['success' => false, 'message' => 'Unauthorized'];
     }
-    
+
     $conn = getDBConnection();
-    
-    $stmt = $conn->prepare("DELETE FROM Announcements WHERE id = ?");
+
+    $stmt = $conn->prepare("DELETE FROM Announcements WHERE announcement_id = ?");
     $stmt->bind_param("i", $announcementId);
-    
+
     if ($stmt->execute()) {
         $stmt->close();
         $conn->close();
@@ -639,7 +658,7 @@ function createTag($name) {
     $conn = getDBConnection();
     
     // Check if tag already exists
-    $stmt = $conn->prepare("SELECT id FROM Tags WHERE name = ?");
+    $stmt = $conn->prepare("SELECT tag_id FROM Tags WHERE name = ?");
     $stmt->bind_param("s", $name);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -648,7 +667,7 @@ function createTag($name) {
         $tag = $result->fetch_assoc();
         $stmt->close();
         $conn->close();
-        return ['success' => true, 'tag_id' => $tag['id'], 'message' => 'Tag already exists'];
+        return ['success' => true, 'tag_id' => $tag['tag_id'], 'message' => 'Tag already exists'];
     }
     
     $stmt->close();
@@ -667,6 +686,7 @@ function createTag($name) {
         return ['success' => false, 'message' => 'Failed to create tag'];
     }
 }
+
 
 function addTagToPost($postId, $tagId) {
     $conn = getDBConnection();
@@ -689,9 +709,9 @@ function getPostTags($postId) {
     $conn = getDBConnection();
     
     $stmt = $conn->prepare("
-        SELECT t.* 
-        FROM Tags t 
-        INNER JOIN PostTags pt ON t.id = pt.tag_id 
+        SELECT t.tag_id, t.name
+        FROM Tags t
+        INNER JOIN PostTags pt ON t.tag_id = pt.tag_id
         WHERE pt.post_id = ?
     ");
     $stmt->bind_param("i", $postId);
@@ -718,30 +738,115 @@ function getAllUsers() {
     if (!isAdmin()) {
         return ['success' => false, 'message' => 'Unauthorized'];
     }
-    
+
     $conn = getDBConnection();
-    
-    $result = $conn->query("SELECT id, username, email, first_name, last_name, role, created_at FROM Users ORDER BY created_at DESC");
-    
+
+    $sql = "
+        SELECT 
+            user_id AS id,
+            username AS name,   -- 👈 alias so frontend gets `name`
+            email,
+            role,
+            status,
+            created_at
+        FROM Users
+        ORDER BY created_at DESC
+    ";
+
+    $result = $conn->query($sql);
     $users = [];
-    while ($row = $result->fetch_assoc()) {
-        $users[] = $row;
+
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $users[] = $row;
+        }
+        $result->free();
     }
-    
+
     $conn->close();
-    
+
     return ['success' => true, 'users' => $users];
 }
 
-function getUserById($userId) {
+function deleteUserById($userId) {
+    // Only admins can delete users
+    if (!isAdmin()) {
+        return [
+            'success' => false,
+            'message' => 'Unauthorized'
+        ];
+    }
+
+    $currentUserId = getCurrentUserId();
+
+    // Optional: block deleting your own admin account
+    if ($currentUserId == $userId) {
+        return [
+            'success' => false,
+            'message' => 'You cannot delete your own account'
+        ];
+    }
+
     $conn = getDBConnection();
-    
-    $stmt = $conn->prepare("SELECT id, username, email, first_name, last_name, role, created_at FROM Users WHERE id = ?");
+
+    // If you need to delete related data (Posts, Comments, etc.)
+    // and you do NOT have ON DELETE CASCADE in your schema,
+    // you can delete from those tables first here.
+
+    $stmt = $conn->prepare("DELETE FROM Users WHERE user_id = ?");
+    if (!$stmt) {
+        $conn->close();
+        return [
+            'success' => false,
+            'message' => 'DB error: ' . $conn->error
+        ];
+    }
+
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+
+    if ($stmt->affected_rows > 0) {
+        $stmt->close();
+        $conn->close();
+        return [
+            'success' => true,
+            'message' => 'User deleted'
+        ];
+    } else {
+        $stmt->close();
+        $conn->close();
+        return [
+            'success' => false,
+            'message' => 'User not found or already deleted'
+        ];
+    }
+}
+
+
+function getUserById($userId) {
+    if (!isAdmin() && getCurrentUserId() != $userId) {
+        return ['success' => false, 'message' => 'Unauthorized'];
+    }
+
+    $conn = getDBConnection();
+
+    $stmt = $conn->prepare("
+        SELECT 
+            user_id AS id,
+            username,
+            email,
+            role,
+            status,
+            created_at
+        FROM Users
+        WHERE user_id = ?
+        LIMIT 1
+    ");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
+
+    if ($result && $result->num_rows > 0) {
         $user = $result->fetch_assoc();
         $stmt->close();
         $conn->close();
@@ -752,6 +857,7 @@ function getUserById($userId) {
         return ['success' => false, 'message' => 'User not found'];
     }
 }
+
 
 function updateUserProfile($userId, $username, $email, $firstName, $lastName) {
     $conn = getDBConnection();

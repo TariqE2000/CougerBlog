@@ -345,27 +345,6 @@ if ($action === 'dashboard-stats' && $method === 'GET') {
 }
 
 
-// ====================
-// ADMIN: DELETE USER
-// ====================
-
-if ($action === 'delete-user' && $method === 'POST') {
-    // Only allow admins – extra safety, even though deleteUserById checks again
-    if (!isAdmin()) {
-        jsonResponse(false, 'Unauthorized');
-    }
-
-    $data = json_decode(file_get_contents('php://input'), true);
-    $userId = intval($data['user_id'] ?? 0);
-
-    if ($userId <= 0) {
-        jsonResponse(false, 'Invalid user ID');
-    }
-
-    $result = deleteUserById($userId);
-    jsonResponse($result['success'], $result['message'], $result);
-}
-
 
 
 // ====================

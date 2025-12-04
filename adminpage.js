@@ -46,17 +46,32 @@ async function loadUsers() {
 
   const tbody = document.getElementById("userTable");
   tbody.innerHTML = result.data.users
-    .map(
-      (u) => `
+  .map((u) => {
+    const email = u.email || "";
+
+    // "jordan@csusm.edu" -> "jordan"
+    const namePart = email.split("@")[0] || "";
+
+    // Capitalize first letter: "jordan" -> "Jordan"
+    const displayName =
+      namePart.length > 0
+        ? namePart.charAt(0).toUpperCase() + namePart.slice(1)
+        : "";
+
+    const id = u.id || u.user_id; // whichever your API returns
+
+    return `
       <tr>
-        <td>${u.first_name || ""} ${u.last_name || ""}</td>
-        <td>${u.email}</td>
+        <td>${displayName}</td>
+        <td>${email}</td>
         <td>${u.role}</td>
-        <td><button class="deleteUser" data-id="${u.id}">Delete</button></td>
+        <td><button class="deleteUser" data-id="${id}">Delete</button></td>
       </tr>
-    `
-    )
-    .join("");
+    `;
+  })
+  .join("");
+
+
 
   document.querySelectorAll(".deleteUser").forEach((btn) => {
     btn.addEventListener("click", async () => {
@@ -155,13 +170,15 @@ async function loadAnnouncements() {
   const response = await fetch(`${API_URL}?action=get-announcements`);
   const result = await response.json();
 
+  if (!result.success) return;
+
   const ul = document.getElementById("annList");
   ul.innerHTML = result.data.announcements
     .map(
       (a) => `
       <li>
-        <strong>${a.title}</strong>: ${a.body}
-        <button class="deleteAnn" data-id="${a.id}">Delete</button>
+        <strong>${a.title}</strong>: ${a.content}
+        <button class="deleteAnn" data-id="${a.announcement_id}">Delete</button>
       </li>
     `
     )
@@ -175,6 +192,7 @@ async function loadAnnouncements() {
     });
   });
 }
+
 
 document.getElementById("addAnnouncement").addEventListener("click", async () => {
   const title = document.getElementById("annTitle").value.trim();
